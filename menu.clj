@@ -34,12 +34,25 @@
 (defn option2 []
       (print "\nPlease enter the file name to display => ")
       (flush)
-      (let [file-name (read-line)]
-           (try
-             (println "\nFile contents:")
-             (println (slurp file-name))  ;; Read and display the contents of the file
-             (catch Exception e
-               (println "Error: File does not exist or cannot be read.")))))
+      (let [file-name (read-line)
+            file (java.io.File. file-name)]
+           (cond
+             (empty? file-name)  ;; Check if file name is empty
+             (println "Error: File name cannot be empty.")
+
+             (not (.exists file))  ;; Check if file does not exist
+             (println "Error: The file does not exist.")
+
+             (not (.isFile file))  ;; Check if the path is not a regular file (could be a directory)
+             (println "Error: The specified path is not a valid file.")
+
+             :else  ;; If no errors, read and display the file contents
+             (try
+               (println "\nFile contents:")
+               (println (slurp file-name))  ;; Read and display the contents of the file
+               (catch Exception e
+                 (println "Error: An issue occurred while reading the file."))))))
+
 
 
 
