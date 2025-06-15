@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]))
 
-;; COMPRESSION METHODS 
+;; FREQUENCY MAP GENERATOR
 
 (defn load-frequency-map
   "Reads frequency.txt, splits on whitespace, and builds a map
@@ -43,6 +43,8 @@
         word))))
 
 
+;; COMPRESSION METHODS 
+
 (defn read-and-get-words
   "Reads a file, prints its contents, and returns a vector of words."
   [file-name]
@@ -73,7 +75,7 @@
 ;;         paragraph (str/join " " ranks)]
 ;;     (println "\nCompressed Paragraph:\n")
 ;;     (println paragraph)
-    
+
 ;;     (spit output-file paragraph)
 
 ;;     (println "\nCompressed paragraph written to:" output-file)
@@ -84,8 +86,6 @@
 ;; DECOMPRESSION METHODS
 
 
-(defn invert-map [m]
-  (into {} (map (fn [[k v]] [v k]) m)))
 
 (defn decompress-file
   [compressed-file freq-map]
@@ -95,11 +95,11 @@
           ;; Reverse map: rank (string) -> word
           rev-map (into {} (map (fn [[w r]] [(str r) w]) freq-map))
           decompressed-words
-            (map (fn [code]
-                   (if (re-matches #"\d+" code)          ;; if code is numeric
-                     (get rev-map code code)              ;; map number to word, else code itself
-                     code))                              ;; if not numeric, just print as is
-                 codes)
+          (map (fn [code]
+                 (if (re-matches #"\d+" code)          ;; if code is numeric
+                   (get rev-map code code)              ;; map number to word, else code itself
+                   code))                              ;; if not numeric, just print as is
+               codes)
           paragraph (str/join " " decompressed-words)]
       (println "\nDecompressed content:\n" paragraph)
       paragraph)

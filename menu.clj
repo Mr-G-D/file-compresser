@@ -1,6 +1,7 @@
 (ns menu
-    (:require [clojure.string :as str])
-    (:require [clojure.java.io :as io])
+    (:require
+     [clojure.java.io :as io]
+     [clojure.string :as str])
     (:require [compress]))
   ; this is where you would also include/require the compress module
 
@@ -83,9 +84,20 @@
 (defn option4 []
   (print "\nPlease enter a .ct file name => ")
   (flush)
-  (let [file-name (read-line)
-        freq-map (compress/load-frequency-map "frequency.txt")] ;; load freq map once here
-    (compress/decompress-file file-name freq-map)))
+  (let [file-name (str/trim (read-line))]
+    (cond
+      (or (nil? file-name) (str/blank? file-name))
+      (println "Error: File name cannot be empty.")
+
+      (not (str/ends-with? file-name ".txt.ct"))
+      (println "Error: Only .txt.ct files are accepted for decompression.")
+
+      (not (.exists (io/file file-name)))
+      (println (str "Error: File not found - " file-name))
+
+      :else
+      (let [freq-map (compress/load-frequency-map "frequency.txt")]
+        (compress/decompress-file file-name freq-map)))))
 
 
 ; If the menu selection is valid, call the relevant function to 
