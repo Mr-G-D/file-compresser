@@ -1,6 +1,7 @@
 (ns menu
     (:require [clojure.string :as str])
-    (:require [clojure.java.io :as io]))
+    (:require [clojure.java.io :as io])
+    (:require [compress]))
   ; this is where you would also include/require the compress module
 
 
@@ -60,21 +61,31 @@
 ; Compress the (valid) file provided by the user. You will replace the println expression with code 
 ; that calls your compression function
 (defn option3
-  [] ;parm(s) can be provided here, if needed
-  (print "\nPlease enter a file name => ") 
+  []
+  (print "\nPlease enter a file name => ")
   (flush)
-  (let [file_name (read-line)]
-     (println "now compress" file_name "with with the functions(s) you provide in compress.clj")))
+  (let [file-name (read-line)
+        output-file (str file-name ".ct") 
+        freq-map (compress/load-frequency-map "frequency.txt") 
+        words (compress/read-and-get-words file-name) 
+        ranks (map #(compress/get-rank freq-map %) words) 
+        paragraph (str/join " " ranks)] 
+    (println "\nCompressed Paragraph:\n")
+
+    (spit output-file paragraph)
+
+    (println "\nCompressed paragraph written to:" output-file)) ; also return it
+  )
 
 
 ; Decompress the (valid) file provided by the user. You will replace the println expression with code 
 ; that calls your decompression function
-(defn option4
-  [] ;parm(s) can be provided here, if needed
-  (print "\nPlease enter a file name => ") 
+(defn option4 []
+  (print "\nPlease enter a .ct file name => ")
   (flush)
-  (let [file_name (read-line)]
-     (println "now decompress" file_name "with with the functions(s) you provide in compress.clj")))
+  (let [file-name (read-line)
+        freq-map (compress/load-frequency-map "frequency.txt")] ;; load freq map once here
+    (compress/decompress-file file-name freq-map)))
 
 
 ; If the menu selection is valid, call the relevant function to 
