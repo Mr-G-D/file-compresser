@@ -61,22 +61,23 @@
 
 ; Compress the (valid) file provided by the user. You will replace the println expression with code 
 ; that calls your compression function
-(defn option3
-  []
-  (print "\nPlease enter a file name => ")
+(defn option3 []
+  (print "\nPlease enter a .txt file to compress => ")
   (flush)
-  (let [file-name (read-line)
-        output-file (str file-name ".ct") 
-        freq-map (compress/load-frequency-map "frequency.txt") 
-        words (compress/read-and-get-words file-name) 
-        ranks (map #(compress/get-rank freq-map %) words) 
-        paragraph (str/join " " ranks)] 
-    (println "\nCompressed Paragraph:\n")
+  (let [file-name (str/trim (read-line))]
+    (cond
+      (or (nil? file-name) (str/blank? file-name))
+      (println "Error: File name cannot be empty.")
 
-    (spit output-file paragraph)
+      (not (str/ends-with? file-name ".txt"))
+      (println "Error: Only .txt files can be compressed.")
 
-    (println "\nCompressed paragraph written to:" output-file)) ; also return it
-  )
+      (not (.exists (io/file file-name)))
+      (println (str "Error: File not found - " file-name))
+
+      :else
+      (let [freq-map (compress/load-frequency-map "frequency.txt")]
+        (compress/compress-file file-name freq-map)))))
 
 
 ; Decompress the (valid) file provided by the user. You will replace the println expression with code 
